@@ -1,11 +1,13 @@
-import json
-
 import tensorflow as tf
 
 
-class RNNTextClassifier:
+class RNNTextClassifier(tf.keras.Model):
+    """ Defines a Long Short Term Memory (LSTM) based model as an approach in the text classification problem.
+    """
 
     def __init__(self, configs):
+        super(RNNTextClassifier, self).__init__()
+
         self.configs = configs
 
         # model definition
@@ -17,16 +19,17 @@ class RNNTextClassifier:
 
         ])
 
-        #
+        # configures the model for training
         self.model.compile(loss='categorical_crossentropy',
-                           optimizer=tf.keras.optimizers.Adam(1e-4),
+                           optimizer=tf.keras.optimizers.Adam(self.configs["learning_rate"]),
                            metrics=['accuracy'])
 
     def fit(self, X, Y):
-        '''
-        Make the prediction
-        '''
-
+        """ Trains the RNNTextClassifier model for a maximum number of epochs.
+        :param X: input tensor with shape (m:samples, n: max text length).
+        :param Y: target tensor with shape (m:samples, n: number of classes).
+        :return: the training history.
+        """
         return self.model.fit(X,
                               Y,
                               epochs=self.configs["epochs"],
@@ -36,9 +39,11 @@ class RNNTextClassifier:
                               )
 
     def predict(self, X):
-        '''
-        Make the prediction
-        '''
+        """
+        :param X: input tensor with shape (m:samples, n: max text length).
+        :return: predicted tensor with shape (m:samples, n: number of classes).
+        """
+
         padded = tf.keras.preprocessing.sequence.pad_sequences(
             X,
             maxlen=self.configs["sequence_size"]
@@ -47,12 +52,16 @@ class RNNTextClassifier:
         return self.model.predict(padded)
 
     def get_callbacks(self):
+        """
+        :return:
+        """
         return [
             tf.keras.callbacks.ModelCheckpoint(
                 filepath=self.configs["checkpoint_path"],
                 monitor='val_accuracy',
                 verbose=1,
-                save_best_only=True, save_weights_only=False,
+                save_best_only=True,
+                save_weights_only=False,
                 save_frequency=1
             ),
             tf.keras.callbacks.EarlyStopping(
@@ -61,12 +70,3 @@ class RNNTextClassifier:
                 min_delta=0.0001
             )
         ]
-
-    @staticmethod
-    def get_configs():
-        '''
-        Make the prediction
-        '''
-        with open("sample_configs.json") as config_file:
-            configs = json.load(config_file)
-        return configs
