@@ -8,9 +8,13 @@ from sklearn.model_selection import train_test_split
 from rnn_text_classifier import RNNTextClassifier
 
 
-def read_and_preprocess():
+def read_and_preprocess(dataset_name):
+    """ read and preprocess some dataset
+    :return: the dataset preprocessed train, test and validation splits
+    """
+
     # read data
-    df = pd.read_csv("data/consumer_complaints_small.csv")
+    df = pd.read_csv(dataset_name)
     df['consumer_complaint_narrative'] = df['consumer_complaint_narrative'].astype(str)
 
     # data information
@@ -22,29 +26,32 @@ def read_and_preprocess():
 
     tokenizer.fit_on_texts(df['consumer_complaint_narrative'].values)
 
-    X = tokenizer.texts_to_sequences(df['consumer_complaint_narrative'].values)
-    X = tf.keras.preprocessing.sequence.pad_sequences(X, maxlen=configs["sequence_size"])
+    x = tokenizer.texts_to_sequences(df['consumer_complaint_narrative'].values)
+    x = tf.keras.preprocessing.sequence.pad_sequences(x, maxlen=configs["sequence_size"])
 
-    Y = pd.get_dummies(df['product']).values
+    y = pd.get_dummies(df['product']).values
 
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.10, random_state=42)
-    print("Train shape:\n", X_train.shape, Y_train.shape)
-    print("Test shape:\n", X_test.shape, Y_test.shape)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.10, random_state=42)
+    x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.10, random_state=42)
 
-    return X_train, X_test, Y_train, Y_test
+    print("Train shape:\n", x_train.shape, y_train.shape)
+    print("Test shape:\n", x_test.shape, y_test.shape)
+    print("Validation shape:\n", x_val.shape, y_val.shape)
+
+    return x_train, y_train, x_test, y_test, x_val, y_val
 
 
-def train(configs, X_train, Y_train):
+def train(configs, x_train, y_train, x_val, y_val):
     # rnn text classifier model
     model = RNNTextClassifier(configs)
 
     # training the model
-    model.fit(X_train, Y_train)
+    model.fit(x_train, y_train, x_val, y_val)
 
 
-def test(configs, X_test, Y_test):
+def test(configs, x_test, y_test):
     model = tf.keras.models.load_model(configs["checkpoint_path"])
-    loss, acc = model.evaluate(X_test, Y_test)
+    loss, acc = model.evaluate(x_test, y_test)
     print('Loss: {:0.3f} - Accuracy: {:0.3f}'.format(loss, acc))
 
 
@@ -77,13 +84,15 @@ if __name__ == '__main__':
         configs = json.load(config_file)
 
     # train and test split
-    X_train, X_test, Y_train, Y_test = read_and_preprocess()
+    x_train, y_train, x_test, y_test, x_val, y_val = read_and_preprocess(
+        dataset_name="data/consumer_complaints_small.csv"
+    )
 
     # train model
-    train(configs, X_train, Y_train)
+    train(configs, x_train, y_train, x_val, y_val)
 
     # testing accuracy
-    test(configs, X_test, Y_test)
+    test(configs, x_test, y_test)
 
     # predict
     new_text = [

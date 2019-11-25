@@ -24,32 +24,34 @@ class RNNTextClassifier(tf.keras.Model):
                            optimizer=tf.keras.optimizers.Adam(self.configs["learning_rate"]),
                            metrics=['accuracy'])
 
-    def fit(self, X, Y):
+    def fit(self, x_train, y_train, x_val, y_val):
         """ Trains the RNNTextClassifier model for a maximum number of epochs.
-        :param X: input tensor with shape (m:samples, n: max text length).
-        :param Y: target tensor with shape (m:samples, n: number of classes).
+        :param x_train: input tensor with shape (m:samples, n: max text length).
+        :param y_train: target tensor with shape (m:samples, n: number of classes).
+        :param x_val: validation tensor with shape (v:samples, n: max text length).
+        :param y_val: target tensor with shape (v:samples, n: number of classes).
         :return: the training history.
         """
-        return self.model.fit(X,
-                              Y,
+        return self.model.fit(x=x_train,
+                              y=y_train,
                               epochs=self.configs["epochs"],
                               batch_size=self.configs["batch_size"],
-                              validation_split=self.configs["validation_split"],
+                              validation_data=(x_val, y_val),
                               callbacks=self.get_callbacks()
                               )
 
-    def predict(self, X):
+    def predict(self, x):
         """
-        :param X: input tensor with shape (m:samples, n: max text length).
+        :param x: input tensor with shape (m:samples, n: max text length).
         :return: predicted tensor with shape (m:samples, n: number of classes).
         """
 
-        padded = tf.keras.preprocessing.sequence.pad_sequences(
-            X,
+        padded_sequences = tf.keras.preprocessing.sequence.pad_sequences(
+            sequences=x,
             maxlen=self.configs["sequence_size"]
         )
 
-        return self.model.predict(padded)
+        return self.model.predict(padded_sequences)
 
     def get_callbacks(self):
         """
