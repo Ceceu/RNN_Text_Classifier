@@ -14,7 +14,7 @@ class RNNTextClassifier(tf.keras.Model):
         self.model = tf.keras.Sequential([
             tf.keras.layers.Embedding(self.configs["vocabulary_size"], self.configs["embedding_size"]),
             tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.LSTM(100, dropout=0.2, recurrent_dropout=0.2),
+            tf.keras.layers.LSTM(self.configs["hidden_size"], dropout=0.2, recurrent_dropout=0.2),
             tf.keras.layers.Dense(self.configs["number_of_classes"], activation='softmax'),
 
         ])
