@@ -3,7 +3,7 @@
   "sequence_size": 250,
   "embedding_size": 100,
   "number_of_classes": 11,
-  "epochs": 5,
+  "epochs": 10,
   "batch_size": 64,
   "validation_split": 0.1,
   "learning_rate": 1e-4,

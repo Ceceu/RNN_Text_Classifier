@@ -21,7 +21,6 @@ def read_and_preprocess():
     tokenizer = get_simple_tokenizer()
 
     tokenizer.fit_on_texts(df['consumer_complaint_narrative'].values)
-    word_index = tokenizer.word_index
 
     X = tokenizer.texts_to_sequences(df['consumer_complaint_narrative'].values)
     X = tf.keras.preprocessing.sequence.pad_sequences(X, maxlen=configs["sequence_size"])
