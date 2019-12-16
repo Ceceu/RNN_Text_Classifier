@@ -1,7 +1,8 @@
 import tensorflow as tf
+from sklearn.base import BaseEstimator, ClassifierMixin
 
 
-class RNNTextClassifier(tf.keras.Model):
+class RNNTextClassifier(tf.keras.Model, BaseEstimator, ClassifierMixin):
     """ Defines a Long Short Term Memory (LSTM) based model as an approach in the text classification problem.
     """
 
@@ -55,7 +56,7 @@ class RNNTextClassifier(tf.keras.Model):
 
     def get_callbacks(self):
         """
-        :return:
+        :return: ModelCheckpoint and EarlyStopping callbacks.
         """
         return [
             tf.keras.callbacks.ModelCheckpoint(
