@@ -4,8 +4,7 @@
   "embedding_size": 100,
   "hidden_size": 100,
   "number_of_classes": 11,
-  "epochs": 10,
+  "epochs": 1,
   "batch_size": 64,
-  "learning_rate": 1e-4,
-  "checkpoint_path": "model_checkpoints/best_rnn_text_classifier_model.hdf5"
+  "learning_rate": 1e-4
 }

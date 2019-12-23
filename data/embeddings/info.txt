@@ -1,0 +1,2 @@
+Get GloVe embeddings at:
+https://nlp.stanford.edu/projects/glove/
